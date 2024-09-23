@@ -1,25 +1,23 @@
 const express = require("express");
 const connectdb = require("./database.js");
-const app = express();
-const bookRouter = require("./api/books/routes.js");
+const bookRouter = require("./api/books/books.routes.js");
 const morgan = require("morgan");
 const cors = require("cors");
-const PORT = 8000;
+const notFoundHandler = require("./middleware/notFoundHandler.js");
+const errorHandler = require("./middleware/errorHandler.js");
 
+const PORT = 8000;
+const app = express();
+connectdb();
+
+app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors());
 app.use("/books", bookRouter);
 
-app.use((req, res, next) => {
-  return res.status(404).json({ message: "Path not found" });
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  return res.status(500).json({ message: "Internal server error" });
-});
-
-connectdb();
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
